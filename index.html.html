@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080d18">
+<title>🧮 لعبة معادلات الدرجة الأولى</title>
+<style>
+/* ============================================================
+   NO EXTERNAL DEPENDENCIES — 100% OFFLINE CAPABLE
+   Arabic font stack using system fonts only
+   ============================================================ */
+:root {
+  --font: 'Segoe UI','Tahoma','Arial Unicode MS','Arial',sans-serif;
+  --mono: 'Courier New','Lucida Console','Consolas',monospace;
+  --easy:   #10d98a;
+  --medium: #f5a623;
+  --hard:   #f04b5a;
+  --bg:     #080d18;
+  --card:   #0f1828;
+  --card2:  #162035;
+  --border: #1e2d4a;
+  --border2:#253560;
+  --text:   #dce8f8;
+  --muted:  #6b7fa0;
+  --muted2: #98aed0;
+  --accent: #4d87f5;
+  --purple: #7b5cf5;
+  --blue2:  #6aaeff;
+  --cyan:   #00d8ff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; touch-action: manipulation; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── BACKGROUND EFFECTS ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at  8% 12%, rgba(255,255,255,.55) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 22% 35%, rgba(255,255,255,.30) 0%, transparent 100%),
+    radial-gradient(2px   2px   at 55%  8%, rgba(255,255,255,.45) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 78% 22%, rgba(255,255,255,.28) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 90% 55%, rgba(255,255,255,.40) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 38% 68%, rgba(255,255,255,.32) 0%, transparent 100%),
+    radial-gradient(2px   2px   at 12% 82%, rgba(255,255,255,.38) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 62% 92%, rgba(255,255,255,.25) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 88%, rgba(255,255,255,.22) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 48% 48%, rgba(255,255,255,.18) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 30% 15%, rgba(255,255,255,.35) 0%, transparent 100%),
+    radial-gradient(2px   2px   at 70% 75%, rgba(255,255,255,.20) 0%, transparent 100%);
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(600px circle at 15% 25%, rgba(64,130,255,.06) 0%, transparent 60%),
+    radial-gradient(500px circle at 85% 75%, rgba(123,92,245,.06) 0%, transparent 60%),
+    radial-gradient(400px circle at 50% 50%, rgba(0,200,200,.03)  0%, transparent 60%);
+}
+
+/* ── MAIN WRAP ── */
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 720px; margin: 0 auto;
+  padding: 16px 14px 80px;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px; gap: 10px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon {
+  width: 48px; height: 48px; flex-shrink: 0;
+  background: linear-gradient(135deg, #4d87f5, #7b5cf5);
+  border-radius: 14px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.6rem;
+  box-shadow: 0 4px 18px rgba(77,135,245,.42);
+}
+.brand-name {
+  font-size: 1.15rem; font-weight: 900; line-height: 1.2;
+  background: linear-gradient(90deg, #6aaeff, #00d8ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.brand-sub { font-size: .68rem; color: var(--muted); }
+
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, rgba(77,135,245,.14), rgba(123,92,245,.14));
+  border: 1.5px solid rgba(77,135,245,.38); border-radius: 11px;
+  color: var(--blue2); font-family: var(--font); font-size: .82rem; font-weight: 700;
+  cursor: pointer; transition: all .25s; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; min-height: 44px;
+}
+.dl-btn:hover, .dl-btn:active {
+  background: linear-gradient(135deg, rgba(77,135,245,.28), rgba(123,92,245,.28));
+  border-color: rgba(77,135,245,.7); color: #fff;
+  box-shadow: 0 0 20px rgba(77,135,245,.3);
+}
+.dl-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* ── SCOREBOARD ── */
+.scores { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.sc {
+  flex: 1; min-width: 72px;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 13px; padding: 10px 8px; text-align: center;
+}
+.sc .sv { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; line-height: 1; }
+.sc .sl { font-size: .62rem; color: var(--muted); margin-top: 4px; }
+
+/* ── LEVEL TABS ── */
+.modes { display: flex; gap: 8px; margin-bottom: 18px; }
+.mtab {
+  flex: 1;
+  padding: 13px 8px;
+  background: var(--card); border: 2px solid var(--border);
+  border-radius: 13px; font-family: var(--font); font-size: .82rem; font-weight: 700;
+  color: var(--muted); cursor: pointer; transition: all .25s; text-align: center;
+  -webkit-tap-highlight-color: transparent; min-height: 70px;
+}
+.mtab .mi { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+.mtab .mb {
+  font-size: .58rem; display: inline-block; padding: 2px 8px;
+  border-radius: 20px; margin-top: 4px; font-weight: 600;
+}
+.mtab.easy:hover, .mtab.easy.active {
+  border-color: var(--easy); color: var(--easy);
+  background: rgba(16,217,138,.08); box-shadow: 0 0 22px rgba(16,217,138,.2);
+}
+.mtab.easy .mb { background: rgba(16,217,138,.15); color: var(--easy); }
+.mtab.medium:hover, .mtab.medium.active {
+  border-color: var(--medium); color: var(--medium);
+  background: rgba(245,166,35,.08); box-shadow: 0 0 22px rgba(245,166,35,.2);
+}
+.mtab.medium .mb { background: rgba(245,166,35,.15); color: var(--medium); }
+.mtab.hard:hover, .mtab.hard.active {
+  border-color: var(--hard); color: var(--hard);
+  background: rgba(240,78,90,.08); box-shadow: 0 0 22px rgba(240,78,90,.2);
+}
+.mtab.hard .mb { background: rgba(240,78,90,.15); color: var(--hard); }
+
+/* ── PROGRESS ── */
+.prog-wrap { margin-bottom: 16px; }
+.prog-info { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); margin-bottom: 5px; }
+.prog-bar { height: 5px; background: var(--border); border-radius: 10px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 10px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.prog-fill.easy   { background: linear-gradient(90deg, var(--easy),   #09a86a); }
+.prog-fill.medium { background: linear-gradient(90deg, var(--medium), #cc8010); }
+.prog-fill.hard   { background: linear-gradient(90deg, var(--hard),   #c01828); }
+
+/* ── QUESTION CARD ── */
+.qcard {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 20px 18px;
+  margin-bottom: 14px; position: relative; overflow: hidden;
+  transition: border-color .3s;
+}
+.qcard::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.qcard.easy::before   { background: linear-gradient(90deg, var(--easy),   transparent); }
+.qcard.medium::before { background: linear-gradient(90deg, var(--medium), transparent); }
+.qcard.hard::before   { background: linear-gradient(90deg, var(--hard),   transparent); }
+
+/* card header */
+.qhdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.qmeta { display: flex; flex-direction: column; gap: 5px; }
+.qnum { font-size: .7rem; color: var(--muted); font-weight: 700; letter-spacing: .05em; }
+.qbadge {
+  display: inline-block; font-size: .62rem; font-weight: 700;
+  padding: 3px 11px; border-radius: 20px; letter-spacing: .04em;
+}
+.qbadge.easy   { background: rgba(16,217,138,.13); color: var(--easy);   border: 1px solid rgba(16,217,138,.3); }
+.qbadge.medium { background: rgba(245,166,35,.13); color: var(--medium); border: 1px solid rgba(245,166,35,.3); }
+.qbadge.hard   { background: rgba(240,78,90,.13);  color: var(--hard);   border: 1px solid rgba(240,78,90,.3); }
+
+/* Timer */
+.tring { width: 52px; height: 52px; position: relative; flex-shrink: 0; }
+.tring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.tring .tt { fill: none; stroke: var(--border); stroke-width: 3.5; }
+.tring .tp { fill: none; stroke-width: 3.5; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke .5s; }
+.tring .tl {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: .8rem; font-weight: 700;
+}
+
+/* Equation display */
+.eq-box {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px 16px; text-align: center; margin-bottom: 14px;
+}
+.eq-lbl { font-size: .63rem; color: var(--muted); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 10px; }
+.eq-main {
+  font-family: var(--mono);
+  font-size: clamp(1.35rem, 5.5vw, 2.1rem);
+  font-weight: 700; direction: ltr; unicode-bidi: embed;
+  letter-spacing: .02em; line-height: 1.35; color: var(--text);
+  word-break: break-all;
+}
+.eq-hint { margin-top: 10px; font-size: .73rem; color: var(--muted); }
+
+/* Type tag */
+.type-tag {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(77,135,245,.07); border: 1px solid rgba(77,135,245,.16);
+  border-radius: 9px; padding: 9px 13px; margin-bottom: 13px;
+  font-size: .78rem; color: var(--muted2);
+}
+.type-tag .ti { font-size: 1rem; flex-shrink: 0; }
+
+/* Live preview */
+.prev-bar {
+  font-family: var(--mono); font-size: .88rem; color: var(--muted);
+  background: var(--card2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; text-align: center; margin-bottom: 13px;
+  min-height: 42px; display: flex; align-items: center; justify-content: center;
+  transition: color .3s, border-color .3s; letter-spacing: .02em;
+}
+.prev-bar.live { color: var(--text); border-color: var(--border2); }
+
+/* Feedback */
+.feedback {
+  display: none; align-items: flex-start; gap: 10px;
+  padding: 13px 15px; border-radius: 12px; margin-bottom: 13px;
+  font-size: .85rem; font-weight: 600; animation: fadeUp .3s ease;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+.feedback.show   { display: flex; }
+.feedback.ok     { background: rgba(16,217,138,.09); border: 1px solid rgba(16,217,138,.3); color: var(--easy); }
+.feedback.err    { background: rgba(240,78,90,.09);  border: 1px solid rgba(240,78,90,.3);  color: var(--hard); }
+.feedback.timeout{ background: rgba(245,166,35,.09); border: 1px solid rgba(245,166,35,.3); color: var(--medium); }
+.fb-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+/* ── SOLUTION BOX ── */
+.sol-box {
+  display: none;
+  background: linear-gradient(135deg, rgba(77,135,245,.055), rgba(123,92,245,.055));
+  border: 1px solid rgba(77,135,245,.22); border-radius: 14px;
+  padding: 16px 16px; margin-bottom: 13px; animation: fadeUp .3s ease;
+}
+.sol-box.show { display: block; }
+.sol-hdr {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .67rem; font-weight: 700; color: var(--blue2);
+  letter-spacing: .09em; text-transform: uppercase; margin-bottom: 12px;
+}
+.sol-hdr::after { content: ''; flex: 1; height: 1px; background: rgba(77,135,245,.2); }
+
+/* Correction strip */
+.corr-strip {
+  background: rgba(240,78,90,.07); border: 1px solid rgba(240,78,90,.22);
+  border-radius: 9px; padding: 10px 13px; margin-bottom: 12px; display: none;
+}
+.corr-strip.show { display: block; }
+.corr-title { font-size: .66rem; color: var(--hard); font-weight: 700; letter-spacing: .05em; margin-bottom: 8px; }
+.corr-row {
+  display: flex; align-items: center; gap: 8px; padding: 5px 0;
+  border-bottom: 1px solid rgba(240,78,90,.1);
+}
+.corr-row:last-child { border-bottom: none; }
+.corr-field { font-size: .7rem; color: var(--muted2); min-width: 70px; }
+.corr-wrong { font-family: var(--mono); font-size: .82rem; color: var(--hard); text-decoration: line-through; opacity: .75; }
+.corr-arr   { color: var(--muted); font-size: .8rem; flex-shrink: 0; }
+.corr-right { font-family: var(--mono); font-size: .9rem; color: var(--easy); font-weight: 700; }
+
+/* Steps */
+.sol-steps { display: flex; flex-direction: column; gap: 7px; }
+.sstep {
+  display: flex; gap: 9px; align-items: flex-start;
+  background: rgba(255,255,255,.025); border-radius: 8px; padding: 10px 12px;
+}
+.ss-n {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(77,135,245,.2); color: var(--blue2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .66rem; font-weight: 800;
+}
+.ss-b { flex: 1; min-width: 0; }
+.ss-l { font-size: .67rem; color: var(--muted); display: block; margin-bottom: 3px; font-weight: 600; }
+.ss-e { font-family: var(--mono); font-size: .88rem; color: var(--text); direction: ltr; display: block; word-break: break-all; }
+.ss-note { font-size: .68rem; color: var(--muted2); display: block; margin-top: 3px; direction: rtl; }
+
+.sol-result {
+  margin-top: 11px; padding: 11px 14px;
+  background: rgba(16,217,138,.07); border: 1px solid rgba(16,217,138,.22);
+  border-radius: 9px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  flex-wrap: wrap;
+}
+.sol-result-lbl { font-size: .73rem; color: var(--easy); font-weight: 700; }
+.sol-result-val { font-family: var(--mono); font-size: 1rem; color: var(--easy); font-weight: 700; direction: ltr; }
+
+/* ── ANSWER INPUTS ── */
+.ans-form { display: flex; flex-direction: column; gap: 11px; margin-bottom: 14px; }
+.inp-row { display: flex; align-items: center; gap: 9px; }
+.inp-lbl { font-family: var(--mono); font-size: .95rem; color: var(--muted); white-space: nowrap; min-width: 32px; text-align: left; }
+.ainp {
+  flex: 1;
+  background: var(--card2); border: 2px solid var(--border2);
+  border-radius: 12px; padding: 13px 15px;
+  font-family: var(--mono); font-size: 1.1rem; color: var(--text);
+  text-align: center; outline: none; direction: ltr;
+  transition: border-color .25s, box-shadow .25s;
+  -webkit-appearance: none; appearance: none;
+  min-height: 52px; /* big touch target */
+}
+.ainp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(77,135,245,.15); }
+.ainp.ok    { border-color: var(--easy);   box-shadow: 0 0 0 3px rgba(16,217,138,.14); background: rgba(16,217,138,.04); color: var(--easy); }
+.ainp.err   { border-color: var(--hard);   box-shadow: 0 0 0 3px rgba(240,78,90,.14);  background: rgba(240,78,90,.04);  animation: shake .38s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+.inp-unit { font-size: .72rem; color: var(--muted); white-space: nowrap; }
+.frac-tip { font-size: .65rem; color: var(--muted); padding-right: 4px; margin-top: -6px; }
+
+/* ── BUTTONS ── */
+.btn-row { display: flex; gap: 9px; }
+.btn-check {
+  flex: 1; padding: 15px; border: none; border-radius: 13px;
+  font-family: var(--font); font-size: .95rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--purple)); color: #fff;
+  cursor: pointer; transition: all .25s;
+  box-shadow: 0 4px 18px rgba(77,135,245,.3);
+  -webkit-tap-highlight-color: transparent; min-height: 54px;
+}
+.btn-check:hover  { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 8px 26px rgba(77,135,245,.42); }
+.btn-check:active { transform: translateY(0); filter: brightness(.95); }
+.btn-check:disabled { opacity: .42; cursor: not-allowed; transform: none; filter: none; box-shadow: none; }
+
+.btn-next {
+  padding: 15px 20px; border: 2px solid var(--border2); border-radius: 13px;
+  background: transparent; font-family: var(--font); font-size: .95rem; font-weight: 700;
+  color: var(--text); cursor: pointer; transition: all .25s; display: none;
+  -webkit-tap-highlight-color: transparent; min-height: 54px;
+}
+.btn-next.show  { display: block; }
+.btn-next:hover, .btn-next:active { background: var(--card2); border-color: var(--accent); color: var(--accent); }
+
+/* ── FORMULA REFERENCE ── */
+.ref-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 15px 16px; margin-bottom: 14px;
+}
+.ref-title { font-size: .65rem; color: var(--muted); font-weight: 700; letter-spacing: .09em; text-transform: uppercase; margin-bottom: 12px; }
+.ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media(max-width:420px){ .ref-grid { grid-template-columns: 1fr; } }
+.ref-item {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 11px;
+}
+.ref-item .ri-l { font-size: .63rem; color: var(--muted); display: block; margin-bottom: 4px; }
+.ref-item .ri-f { font-family: var(--mono); font-size: .76rem; color: var(--text); direction: ltr; display: block; }
+.ri-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-left: 5px; vertical-align: middle; }
+
+/* ── END SCREEN ── */
+.end-screen { display: none; text-align: center; padding: 40px 12px 60px; }
+.end-screen.show { display: block; animation: fadeUp .4s ease; }
+.end-trophy { font-size: 5rem; margin-bottom: 14px; animation: pop .5s ease; }
+@keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+.end-title { font-size: 1.85rem; font-weight: 900; margin-bottom: 6px; }
+.end-sub { color: var(--muted); font-size: .87rem; margin-bottom: 26px; }
+.end-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 26px; }
+.estat {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 15px 18px; min-width: 88px;
+}
+.estat .ev { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+.estat .el { font-size: .64rem; color: var(--muted); }
+.end-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-restart {
+  padding: 14px 30px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border: none; border-radius: 13px; font-family: var(--font);
+  font-size: .95rem; font-weight: 700; color: #fff; cursor: pointer;
+  transition: all .25s; box-shadow: 0 6px 20px rgba(77,135,245,.32);
+  min-height: 52px; -webkit-tap-highlight-color: transparent;
+}
+.btn-restart:hover { filter: brightness(1.1); transform: translateY(-2px); }
+.btn-dl2 {
+  padding: 14px 22px;
+  background: var(--card2); border: 1.5px solid var(--border2);
+  border-radius: 13px; font-family: var(--font);
+  font-size: .95rem; font-weight: 700; color: var(--text); cursor: pointer;
+  transition: all .25s; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 52px; -webkit-tap-highlight-color: transparent;
+}
+.btn-dl2:hover { border-color: var(--blue2); color: var(--blue2); }
+
+/* Particles */
+.particle {
+  position: fixed; pointer-events: none; font-size: 1.3rem;
+  animation: pfly 1.1s ease forwards; z-index: 999;
+}
+@keyframes pfly { from{opacity:1;transform:translateY(0) scale(1)} to{opacity:0;transform:translateY(-110px) scale(1.5)} }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 400px) {
+  .modes { gap: 6px; }
+  .mtab { font-size: .76rem; padding: 10px 5px; min-height: 64px; }
+  .mtab .mb { display: none; }
+  .eq-main { font-size: 1.25rem; }
+  .brand-name { font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🧮</div>
+      <div>
+        <div class="brand-name">لعبة المعادلات</div>
+        <div class="brand-sub">معادلات الدرجة الأولى · ثلاثة مستويات</div>
+      </div>
+    </div>
+    <button class="dl-btn" onclick="downloadGame()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      تحميل
+    </button>
+  </div>
+
+  <!-- SCORES -->
+  <div class="scores">
+    <div class="sc"><div class="sv" id="sc-score" style="color:var(--blue2)">0</div><div class="sl">النقاط</div></div>
+    <div class="sc"><div class="sv" id="sc-ok" style="color:var(--easy)">0</div><div class="sl">صحيح</div></div>
+    <div class="sc"><div class="sv" id="sc-streak" style="color:var(--medium)">0</div><div class="sl">🔥 تتالي</div></div>
+    <div class="sc"><div class="sv" id="sc-q" style="color:var(--muted2)">1/10</div><div class="sl">السؤال</div></div>
+  </div>
+
+  <!-- LEVEL TABS -->
+  <div class="modes">
+    <button class="mtab easy active" onclick="setLevel('easy')">
+      <span class="mi">🌱</span>سهل
+      <span class="mb">أعداد صحيحة</span>
+    </button>
+    <button class="mtab medium" onclick="setLevel('medium')">
+      <span class="mi">⚡</span>متوسط
+      <span class="mb">كسور</span>
+    </button>
+    <button class="mtab hard" onclick="setLevel('hard')">
+      <span class="mi">🔥</span>صعب
+      <span class="mb">أقواس</span>
+    </button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="prog-wrap">
+    <div class="prog-info">
+      <span id="prog-lbl">السؤال 1 من 10</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="prog-bar">
+      <div class="prog-fill easy" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- GAME AREA -->
+  <div id="gameArea">
+
+    <!-- Q CARD -->
+    <div class="qcard easy" id="qCard">
+      <div class="qhdr">
+        <div class="qmeta">
+          <span class="qnum" id="qNum">السؤال #1</span>
+          <span class="qbadge easy" id="qBadge">ax + b = c</span>
+        </div>
+        <div class="tring">
+          <svg viewBox="0 0 52 52">
+            <circle class="tt" cx="26" cy="26" r="22"/>
+            <circle class="tp" id="tarc" cx="26" cy="26" r="22"
+              stroke-dasharray="138" stroke-dashoffset="0" stroke="var(--easy)"/>
+          </svg>
+          <div class="tl" id="tlbl">30</div>
+        </div>
+      </div>
+
+      <div class="eq-box">
+        <div class="eq-lbl">أوجد قيمة المجهول x</div>
+        <div class="eq-main" id="eqMain">2x + 3 = 9</div>
+        <div class="eq-hint" id="eqHint">معادلة بسيطة</div>
+      </div>
+
+      <div class="type-tag" id="typeTag">
+        <span class="ti">📌</span>
+        <span id="typeTagText">نوع: ax + b = c — ننقل الثابت ثم نقسم</span>
+      </div>
+
+      <div class="prev-bar" id="prevBar">x = ?</div>
+
+      <div class="feedback" id="feedback">
+        <span class="fb-icon" id="fbIcon"></span>
+        <span id="fbText"></span>
+      </div>
+
+      <div class="sol-box" id="solBox">
+        <div class="sol-hdr">💡 خطوات الحل التفصيلية</div>
+        <div class="corr-strip" id="corrStrip">
+          <div class="corr-title">🔍 تصحيح إجابتك</div>
+          <div id="corrRows"></div>
+        </div>
+        <div class="sol-steps" id="solSteps"></div>
+        <div class="sol-result">
+          <span class="sol-result-lbl">✔ الإجابة الصحيحة</span>
+          <span class="sol-result-val" id="solAns"></span>
+        </div>
+      </div>
+
+      <div class="ans-form" id="ansForm"></div>
+
+      <div class="btn-row">
+        <button class="btn-check" id="btnCheck" onclick="checkAnswer()">تحقق من الإجابة ✓</button>
+        <button class="btn-next" id="btnNext" onclick="nextQ()">التالي ←</button>
+      </div>
+    </div><!-- /qcard -->
+
+    <!-- FORMULA REFERENCE -->
+    <div class="ref-card">
+      <div class="ref-title">📖 قوانين مرجعية سريعة</div>
+      <div class="ref-grid">
+        <div class="ref-item">
+          <span class="ri-l"><span class="ri-dot" style="background:var(--easy)"></span>سهل: ننقل الثابت ونقسم</span>
+          <span class="ri-f">ax + b = c → x = (c-b)/a</span>
+        </div>
+        <div class="ref-item">
+          <span class="ri-l"><span class="ri-dot" style="background:#6aaeff"></span>مجهول في طرفين</span>
+          <span class="ri-f">ax+b = cx+d → نجمع x</span>
+        </div>
+        <div class="ref-item">
+          <span class="ri-l"><span class="ri-dot" style="background:var(--medium)"></span>متوسط: كسور</span>
+          <span class="ri-f">x/a + b = c → نضرب في a</span>
+        </div>
+        <div class="ref-item">
+          <span class="ri-l"><span class="ri-dot" style="background:var(--hard)"></span>صعب: أقواس</span>
+          <span class="ri-f">a(x+b)=c → افتح القوس</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /gameArea -->
+
+  <!-- END SCREEN -->
+  <div class="end-screen" id="endScreen">
+    <div class="end-trophy" id="endTrophy">🏆</div>
+    <div class="end-title" id="endTitle">ممتاز!</div>
+    <div class="end-sub" id="endSub">أنهيت اللعبة</div>
+    <div class="end-grid">
+      <div class="estat"><div class="ev" id="es-score" style="color:var(--blue2)">0</div><div class="el">النقاط</div></div>
+      <div class="estat"><div class="ev" id="es-ok"    style="color:var(--easy)">0/10</div><div class="el">صحيح</div></div>
+      <div class="estat"><div class="ev" id="es-pct"   style="color:var(--medium)">0%</div><div class="el">النسبة</div></div>
+      <div class="estat"><div class="ev" id="es-time"  style="color:var(--purple)">0ث</div><div class="el">الوقت</div></div>
+    </div>
+    <div class="end-btns">
+      <button class="btn-restart" onclick="restart()">🔄 العب مرة أخرى</button>
+      <button class="btn-dl2" onclick="downloadGame()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        حفظ اللعبة
+      </button>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+var G = {
+  level:'easy', questions:[], idx:0,
+  score:0, correct:0, streak:0, totalTime:0,
+  timeLeft:30, timer:null, answered:false, totalQ:10,
+  levelTime:{easy:30,medium:45,hard:60},
+  levelPoints:{easy:10,medium:20,hard:35}
+};
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function ri(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function ra(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function nz(a,b,ex){ ex=ex||0; var v; do{ v=ri(a,b); }while(v===ex); return v; }
+function gcd(a,b){ return b===0?Math.abs(a):gcd(b,a%b); }
+function simp(n,d){ var g=gcd(Math.abs(n),Math.abs(d)); var sn=n/g,sd=d/g; if(sd<0){sn=-sn;sd=-sd;} return {n:sn,d:sd}; }
+
+function fmtAns(x){
+  if(Number.isInteger(x)) return String(x);
+  for(var d=2;d<=24;d++){
+    var n=Math.round(x*d);
+    if(Math.abs(n/d-x)<0.00001){ var s=simp(n,d); return s.d===1?String(s.n):(s.n+'/'+s.d); }
+  }
+  return parseFloat(x.toFixed(3)).toString();
+}
+
+function parseInput(v){
+  var s=(v||'').trim();
+  if(s.indexOf('/')>=0){
+    var p=s.split('/');
+    var n=parseFloat(p[0]),d=parseFloat(p[1]);
+    if(isNaN(n)||isNaN(d)||d===0) return NaN;
+    return n/d;
+  }
+  return parseFloat(s);
+}
+
+function signS(n){ return n>=0?('+ '+n):('- '+Math.abs(n)); }
+function coeffS(a,v){
+  if(a===1) return v;
+  if(a===-1) return '-'+v;
+  return a+v;
+}
+
+/* ============================================================
+   QUESTION GENERATORS
+   ============================================================ */
+
+/* === EASY === */
+function genE1(){
+  var a=nz(-8,8,0),b=ri(-15,15),x=ri(-10,10),c=a*x+b;
+  var bs=b===0?'':(b>0?' + '+b:' - '+Math.abs(b));
+  var eq=coeffS(a,'x')+bs+' = '+c;
+  var steps=[
+    {l:'نكتب المعادلة',e:eq,n:''},
+    {l:'نطرح '+b+' من الطرفين',e:coeffS(a,'x')+' = '+(c-b),n:c+' - ('+b+') = '+(c-b)},
+    {l:'نقسم الطرفين على '+a,e:'x = '+(c-b)+' ÷ '+a,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'ax + b = c',typeDesc:'ننقل الثابت ثم نقسم',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genE2(){
+  var a=nz(-9,9,0),x=ri(-9,9),b=a*x;
+  var eq=coeffS(a,'x')+' = '+b;
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'نقسم الطرفين على '+a,e:'x = '+b+'/'+a,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'ax = b',typeDesc:'نقسم على معامل x مباشرةً',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genE3(){
+  var b=ri(-18,18),x=ri(-12,12),c=x+b;
+  var bs=b>=0?'+ '+b:'- '+Math.abs(b);
+  var eq='x '+bs+' = '+c;
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'نطرح '+b+' من الطرفين',e:'x = '+c+' - ('+b+')',n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'x + b = c',typeDesc:'نطرح الثابت من الطرفين',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genE4(){
+  var a=nz(2,7,0),b=nz(1,5,0); if(a===b)return genE4();
+  var x=ri(-7,7),c=(a+b)*x;
+  var eq=coeffS(a,'x')+' + '+coeffS(b,'x')+' = '+c;
+  var steps=[
+    {l:'المعادلة الأصلية',e:eq,n:''},
+    {l:'نجمع الحدود المتشابهة',e:(a+b)+'x = '+c,n:a+' + '+b+' = '+(a+b)},
+    {l:'نقسم على '+(a+b),e:'x = '+c+'/'+(a+b),n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'ax + bx = c',typeDesc:'نجمع الحدود المتشابهة أولاً',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genE5(){
+  var a=nz(2,8,0),c=ri(1,a-1),b=ri(-10,10),x=ri(-7,7),d=b+(a-c)*x;
+  var eq=coeffS(a,'x')+' '+signS(b)+' = '+coeffS(c,'x')+' '+signS(d);
+  var coeff=a-c,rhs=d-b;
+  var steps=[
+    {l:'نكتب المعادلة',e:eq,n:''},
+    {l:'ننقل '+coeffS(c,'x')+' للطرف الأيسر',e:coeff+'x '+signS(b)+' = '+d,n:a+'x - '+c+'x = '+coeff+'x'},
+    {l:'نطرح '+b,e:coeff+'x = '+rhs,n:''},
+    {l:'نقسم على '+coeff,e:'x = '+rhs+'/'+coeff,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'ax + b = cx + d',typeDesc:'نجمع حدود x في طرف',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+/* === MEDIUM === */
+function genM1(){
+  var a=nz(2,8,0),b=ri(-8,8),x=ri(-10,10)*a,c=x/a+b;
+  var bs=b>=0?'+ '+b:'- '+Math.abs(b);
+  var eq='x/'+a+' '+bs+' = '+c;
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'نطرح '+b+' من الطرفين',e:'x/'+a+' = '+(c-b),n:''},
+    {l:'نضرب الطرفين في '+a,e:'x = '+(c-b)+' × '+a,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'x/a + b = c',typeDesc:'نطرح الثابت ثم نضرب في المقام',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genM2(){
+  var a=nz(2,6,0),b=nz(2,6,0); if(a===b)return genM2();
+  var c=ri(2,10),ans=b*c/a;
+  var s=simp(b*c,a),ansD=s.d===1?String(s.n):(s.n+'/'+s.d);
+  var eq='('+a+'/'+b+')x = '+c;
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'نضرب بمقلوب الكسر ('+b+'/'+a+')',e:'x = '+c+' × '+b+'/'+a,n:'نضرب في مقلوب معامل x'},
+    {l:'نحسب',e:'x = '+(b*c)+'/'+a,n:'x = '+ansD}
+  ];
+  return {typeName:'(a/b)x = c',typeDesc:'نضرب بمقلوب معامل x',display:eq,answer:ans,steps,ansLbl:'x = '+ansD};
+}
+
+function genM3(){
+  var a=nz(2,5,0),b=nz(2,5,0); if(a===b)return genM3();
+  var c=ri(1,6),num=c*a*b,den=a+b,ans=num/den;
+  var s=simp(num,den),ansD=s.d===1?String(s.n):(s.n+'/'+s.d);
+  var eq='x/'+a+' + x/'+b+' = '+c;
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'نضرب كل حد في '+(a*b)+' (م.م.أ)',e:b+'x + '+a+'x = '+(c*a*b),n:a+'×'+b+' = '+(a*b)},
+    {l:'نجمع الحدود',e:(a+b)+'x = '+(c*a*b),n:b+'x + '+a+'x = '+(a+b)+'x'},
+    {l:'نقسم على '+(a+b),e:'x = '+num+'/'+den,n:'x = '+ansD}
+  ];
+  return {typeName:'x/a + x/b = c',typeDesc:'نضرب في المضاعف المشترك',display:eq,answer:ans,steps,ansLbl:'x = '+ansD};
+}
+
+function genM4(){
+  var a=nz(2,5,0),b=nz(2,6,0),c=ri(-7,7),x=ri(-8,8)*b,d=a*x/b+c;
+  if(!Number.isInteger(d))return genM4();
+  var eq=a+'x/'+b+' '+signS(c)+' = '+d;
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'نطرح '+c+' من الطرفين',e:a+'x/'+b+' = '+(d-c),n:''},
+    {l:'نضرب في '+b,e:a+'x = '+((d-c)*b),n:''},
+    {l:'نقسم على '+a,e:'x = '+((d-c)*b)+'/'+a,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'ax/b + c = d',typeDesc:'نعزل الكسر ثم نضرب في المقام',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genM5(){
+  var a=nz(2,6,0),c=nz(2,6,0); if(a===c)return genM5();
+  var b=ri(-5,5),d=ri(-5,5),den=c-a; if(den===0)return genM5();
+  var num=(d-b)*a*c,s=simp(num,den); if(s.d!==1)return genM5();
+  var x=s.n;
+  var eq='x/'+a+' '+signS(b)+' = x/'+c+' '+signS(d);
+  var steps=[
+    {l:'المعادلة',e:eq,n:''},
+    {l:'ننقل حدود x للطرف الأيسر',e:'x/'+a+' - x/'+c+' = '+(d-b),n:''},
+    {l:'نوحّد المقامات ('+(a*c)+')',e:c+'x/'+(a*c)+' - '+a+'x/'+(a*c)+' = '+(d-b),n:''},
+    {l:'نجمع الكسور',e:(c-a)+'x/'+(a*c)+' = '+(d-b),n:''},
+    {l:'نحل لـ x',e:'x = '+num+'/'+den,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'x/a+b = x/c+d',typeDesc:'نجمع حدود x في طرف واحد',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+/* === HARD === */
+function genH1(){
+  var a=nz(2,7,0),b=ri(-8,8),x=ri(-8,8),c=a*(x+b);
+  var bs=b>=0?'+ '+b:'- '+Math.abs(b);
+  var eq=a+'(x '+bs+') = '+c;
+  var steps=[
+    {l:'نفتح القوس',e:a+'x '+signS(a*b)+' = '+c,n:a+'×x='+a+'x ، '+a+'×('+b+')='+(a*b)},
+    {l:'نطرح '+(a*b)+' من الطرفين',e:a+'x = '+(c-a*b),n:''},
+    {l:'نقسم على '+a,e:'x = '+(c-a*b)+'/'+a,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'a(x + b) = c',typeDesc:'افتح القوس أولاً ثم حل',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genH2(){
+  var a=nz(2,5,0),b=ri(-6,6),c=ri(-10,10),x=ri(-8,8),d=a*(x+b)+c;
+  var bs=b>=0?'+ '+b:'- '+Math.abs(b);
+  var eq=a+'(x '+bs+') '+signS(c)+' = '+d;
+  var expand=a*b+c;
+  var steps=[
+    {l:'نفتح القوس',e:a+'x '+signS(a*b)+' '+signS(c)+' = '+d,n:a+'×('+b+')='+(a*b)},
+    {l:'نجمع الأعداد الثابتة',e:a+'x '+signS(expand)+' = '+d,n:(a*b)+' '+signS(c)+' = '+expand},
+    {l:'نطرح '+expand,e:a+'x = '+(d-expand),n:''},
+    {l:'نقسم على '+a,e:'x = '+(d-expand)+'/'+a,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'a(x+b) + c = d',typeDesc:'افتح القوس واجمع الأعداد',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genH3(){
+  var a=ri(1,4),b=ri(-5,5),c=ri(1,4),d=ri(-5,5),x=ri(-6,6);
+  var e=a*(x+b)+c*(x+d);
+  var bs=b>=0?'+ '+b:'- '+Math.abs(b);
+  var ds=d>=0?'+ '+d:'- '+Math.abs(d);
+  var eq=a+'(x '+bs+') + '+c+'(x '+ds+') = '+e;
+  var coefX=a+c,constP=a*b+c*d;
+  var steps=[
+    {l:'نفتح القوسين',e:a+'x '+signS(a*b)+' + '+c+'x '+signS(c*d)+' = '+e,n:''},
+    {l:'نجمع حدود x والأعداد',e:coefX+'x '+signS(constP)+' = '+e,n:a+'x+'+c+'x='+coefX+'x'},
+    {l:'نطرح '+constP,e:coefX+'x = '+(e-constP),n:''},
+    {l:'نقسم على '+coefX,e:'x = '+(e-constP)+'/'+coefX,n:'x = '+fmtAns(x)}
+  ];
+  return {typeName:'a(x+b)+c(x+d)=e',typeDesc:'افتح القوسين ثم اجمع',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genH4(){
+  var a,b,c,d,e,f,coeff;
+  do{
+    a=ri(1,3);b=ri(1,4);c=ri(-5,5);d=ri(1,3);e=ri(1,4);f=ri(-5,5);
+    coeff=a*b-d*e;
+  }while(coeff===0);
+  var rhs=d*f-a*c;
+  if(rhs%coeff!==0)return genH4();
+  var x=rhs/coeff;
+  var cs=c>=0?'+ '+c:'- '+Math.abs(c);
+  var fs=f>=0?'+ '+f:'- '+Math.abs(f);
+  var eq=a+'('+b+'x '+cs+') = '+d+'('+e+'x '+fs+')';
+  var steps=[
+    {l:'نفتح القوسين',e:(a*b)+'x '+signS(a*c)+' = '+(d*e)+'x '+signS(d*f),n:''},
+    {l:'ننقل حدود x لطرف واحد',e:coeff+'x '+signS(a*c)+' = '+(d*f),n:(a*b)+'x - '+(d*e)+'x = '+coeff+'x'},
+    {l:'نطرح '+(a*c),e:coeff+'x = '+rhs,n:''},
+    {l:'نقسم على '+coeff,e:'x = '+fmtAns(x),n:''}
+  ];
+  return {typeName:'a(bx+c)=d(ex+f)',typeDesc:'افتح القوسين واجمع الحدود',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+function genH5(){
+  var a=nz(2,5,0),c=nz(2,6,0),b=ri(-5,5),x=ri(-6,6)*c;
+  var d=a*(x+b)/c;
+  if(!Number.isInteger(d))return genH5();
+  var bs=b>=0?'+ '+b:'- '+Math.abs(b);
+  var eq=a+'(x '+bs+')/'+c+' = '+d;
+  var steps=[
+    {l:'نضرب الطرفين في '+c,e:a+'(x '+bs+') = '+(d*c),n:'نتخلص من المقام أولاً'},
+    {l:'نفتح القوس',e:a+'x '+signS(a*b)+' = '+(d*c),n:a+'×('+b+')='+(a*b)},
+    {l:'نطرح '+(a*b),e:a+'x = '+(d*c-a*b),n:''},
+    {l:'نقسم على '+a,e:'x = '+fmtAns(x),n:''}
+  ];
+  return {typeName:'a(x+b)/c = d',typeDesc:'نضرب في المقام ثم نفتح القوس',display:eq,answer:x,steps,ansLbl:'x = '+fmtAns(x)};
+}
+
+/* POOLS */
+var POOLS={
+  easy:[genE1,genE2,genE3,genE4,genE5],
+  medium:[genM1,genM2,genM3,genM4,genM5],
+  hard:[genH1,genH2,genH3,genH4,genH5]
+};
+
+function makeQuestions(level){
+  var pool=POOLS[level], qs=[];
+  // 2 from each type
+  pool.forEach(function(gen){ for(var i=0;i<2&&qs.length<G.totalQ;i++) qs.push(gen()); });
+  // shuffle
+  for(var i=qs.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=qs[i]; qs[i]=qs[j]; qs[j]=t;
+  }
+  return qs.slice(0,G.totalQ);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+var HINTS={easy:'أعداد صحيحة — جواب بسيط',medium:'قد تكون الإجابة كسراً مثل: 3/4',hard:'افتح الأقواس أولاً ثم بسّط'};
+
+function renderQ(){
+  var q=G.questions[G.idx];
+  G.answered=false;
+  var lv=G.level;
+
+  document.getElementById('qCard').className='qcard '+lv;
+  document.getElementById('qNum').textContent='السؤال #'+(G.idx+1);
+  document.getElementById('qBadge').textContent=q.typeName;
+  document.getElementById('qBadge').className='qbadge '+lv;
+  document.getElementById('eqMain').textContent=q.display;
+  document.getElementById('eqHint').textContent=HINTS[lv];
+  document.getElementById('typeTagText').textContent='نوع: '+q.typeName+' — '+q.typeDesc;
+
+  var pct=Math.round(G.idx/G.totalQ*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-fill').className='prog-fill '+lv;
+  document.getElementById('prog-lbl').textContent='السؤال '+(G.idx+1)+' من '+G.totalQ;
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('sc-q').textContent=(G.idx+1)+'/'+G.totalQ;
+
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('solBox').classList.remove('show');
+  document.getElementById('corrStrip').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('btnCheck').disabled=false;
+  var pb=document.getElementById('prevBar');
+  pb.textContent='x = ?';
+  pb.classList.remove('live');
+
+  buildInputs(q);
+  startTimer();
+  setTimeout(function(){ var f=document.querySelector('.ainp'); if(f)f.focus(); },100);
+}
+
+function buildInputs(q){
+  var f=document.getElementById('ansForm');
+  f.innerHTML='<div class="inp-row">'
+    +'<span class="inp-lbl">x =</span>'
+    +'<input class="ainp" id="ix" type="text" inputmode="decimal" '
+    +'placeholder="أدخل إجابتك" autocomplete="off" autocorrect="off" '
+    +'onkeydown="hk(event)" oninput="livePreview()">'
+    +'</div>';
+  if(G.level==='medium'){
+    f.innerHTML+='<div class="frac-tip">💡 يمكنك إدخال كسر مثل: 3/4 أو -5/2</div>';
+  }
+}
+
+function livePreview(){
+  var v=document.getElementById('ix').value;
+  var val=parseInput(v);
+  var pb=document.getElementById('prevBar');
+  if(isNaN(val)){ pb.textContent='x = ?'; pb.classList.remove('live'); }
+  else { pb.textContent='x = '+val; pb.classList.add('live'); }
+}
+
+/* ============================================================
+   CHECK
+   ============================================================ */
+function checkAnswer(){
+  if(G.answered)return;
+  var q=G.questions[G.idx];
+  var raw=document.getElementById('ix').value;
+  var val=parseInput(raw);
+  if(raw.trim()===''||isNaN(val))return;
+
+  clearInterval(G.timer);
+  G.answered=true;
+  document.getElementById('btnCheck').disabled=true;
+  document.getElementById('btnNext').classList.add('show');
+
+  var ok=Math.abs(val-q.answer)<0.015;
+  var el=document.getElementById('ix');
+  el.className='ainp '+(ok?'ok':'err');
+  el.disabled=true;
+
+  if(ok){
+    G.correct++; G.streak++;
+    var sp=G.timeLeft>G.levelTime[G.level]*0.55?5:0;
+    var str=G.streak>=3?10:0;
+    var pts=G.levelPoints[G.level]+sp+str; G.score+=pts;
+    var msg='🎉 إجابة صحيحة! +'+pts+' نقطة';
+    if(G.streak>=3) msg+=' 🔥 تتالي ×'+G.streak+'!';
+    if(sp) msg+=' ⚡ مكافأة السرعة!';
+    showFeedback('ok',msg);
+    spawnParticles();
+  } else {
+    G.streak=0;
+    showFeedback('err','❌ إجابة خاطئة — راجع خطوات الحل أدناه');
+    showCorrection(val, q.answer);
+    showSolution(q);
+  }
+  updateSc();
+}
+
+function showFeedback(type,msg){
+  var fb=document.getElementById('feedback');
+  fb.className='feedback '+type+' show';
+  document.getElementById('fbIcon').textContent=type==='ok'?'✅':type==='timeout'?'⏰':'❌';
+  document.getElementById('fbText').textContent=msg;
+}
+
+function showCorrection(userVal,ans){
+  var strip=document.getElementById('corrStrip');
+  var rows=document.getElementById('corrRows');
+  rows.innerHTML='<div class="corr-row">'
+    +'<span class="corr-field">المجهول x</span>'
+    +'<span class="corr-wrong">'+(isNaN(userVal)?'—':userVal)+'</span>'
+    +'<span class="corr-arr">→</span>'
+    +'<span class="corr-right">'+fmtAns(ans)+'</span>'
+    +'</div>';
+  strip.classList.add('show');
+}
+
+function showSolution(q){
+  var cont=document.getElementById('solSteps');
+  cont.innerHTML='';
+  q.steps.forEach(function(s,i){
+    var d=document.createElement('div');
+    d.className='sstep';
+    d.innerHTML='<div class="ss-n">'+(i+1)+'</div>'
+      +'<div class="ss-b">'
+      +'<span class="ss-l">'+s.l+'</span>'
+      +'<span class="ss-e">'+s.e+'</span>'
+      +(s.n?'<span class="ss-note">← '+s.n+'</span>':'')
+      +'</div>';
+    cont.appendChild(d);
+  });
+  document.getElementById('solAns').textContent=q.ansLbl;
+  document.getElementById('solBox').classList.add('show');
+}
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+function startTimer(){
+  clearInterval(G.timer);
+  G.timeLeft=G.levelTime[G.level]; updTimer();
+  G.timer=setInterval(function(){
+    G.timeLeft--; G.totalTime++; updTimer();
+    if(G.timeLeft<=0){ clearInterval(G.timer); timeUp(); }
+  },1000);
+}
+function updTimer(){
+  var max=G.levelTime[G.level],r=G.timeLeft/max;
+  var arc=document.getElementById('tarc');
+  arc.style.strokeDashoffset=138*(1-r);
+  arc.style.stroke=r>.55?'var(--easy)':r>.28?'var(--medium)':'var(--hard)';
+  document.getElementById('tlbl').textContent=G.timeLeft;
+}
+function timeUp(){
+  if(G.answered)return;
+  G.answered=true; G.streak=0;
+  document.getElementById('btnCheck').disabled=true;
+  document.getElementById('btnNext').classList.add('show');
+  showFeedback('timeout','⏰ انتهى الوقت! شاهد الحل أدناه');
+  showSolution(G.questions[G.idx]);
+  updateSc();
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function nextQ(){
+  G.idx++;
+  if(G.idx>=G.totalQ){ endGame(); return; }
+  renderQ();
+}
+
+function endGame(){
+  clearInterval(G.timer);
+  document.getElementById('gameArea').style.display='none';
+  var pct=Math.round(G.correct/G.totalQ*100);
+  var lvN={easy:'سهل',medium:'متوسط',hard:'صعب'};
+  var trophy='📚',title='استمر في التدريب!';
+  if(pct===100){trophy='🏆';title='مثالي! أداء استثنائي!';}
+  else if(pct>=80){trophy='🥇';title='ممتاز جداً!';}
+  else if(pct>=60){trophy='🥈';title='جيد جداً! أحسنت!';}
+  else if(pct>=40){trophy='🥉';title='جيد! استمر في التعلم!';}
+  document.getElementById('endTrophy').textContent=trophy;
+  document.getElementById('endTitle').textContent=title;
+  document.getElementById('endSub').textContent='انتهيت من مستوى "'+lvN[G.level]+'"';
+  document.getElementById('es-score').textContent=G.score;
+  document.getElementById('es-ok').textContent=G.correct+'/'+G.totalQ;
+  document.getElementById('es-pct').textContent=pct+'%';
+  document.getElementById('es-time').textContent=G.totalTime+'ث';
+  document.getElementById('endScreen').classList.add('show');
+}
+
+function setLevel(lv){
+  G.level=lv;
+  document.querySelectorAll('.mtab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelector('.mtab.'+lv).classList.add('active');
+  restart();
+}
+
+function restart(){
+  clearInterval(G.timer);
+  G.idx=0; G.score=0; G.correct=0; G.streak=0; G.totalTime=0;
+  G.questions=makeQuestions(G.level);
+  document.getElementById('endScreen').classList.remove('show');
+  document.getElementById('gameArea').style.display='block';
+  updateSc(); renderQ();
+}
+
+function updateSc(){
+  document.getElementById('sc-score').textContent=G.score;
+  document.getElementById('sc-ok').textContent=G.correct;
+  document.getElementById('sc-streak').textContent=G.streak;
+}
+
+function hk(e){ if(e.key==='Enter') checkAnswer(); }
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+function spawnParticles(){
+  var em=['⭐','✨','💫','🌟','🎉','🎊','💥','✔','🏅'];
+  for(var i=0;i<8;i++){
+    (function(i){
+      setTimeout(function(){
+        var p=document.createElement('div');
+        p.className='particle';
+        p.textContent=em[Math.floor(Math.random()*em.length)];
+        p.style.left=(15+Math.random()*70)+'vw';
+        p.style.top=(20+Math.random()*55)+'vh';
+        document.body.appendChild(p);
+        setTimeout(function(){ p.remove(); },1200);
+      },i*80);
+    })(i);
+  }
+}
+
+/* ============================================================
+   DOWNLOAD — 100% self-contained, no server needed
+   ============================================================ */
+function downloadGame(){
+  try{
+    var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+    var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='لعبة-معادلات-الدرجة-الأولى.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(err){
+    alert('لحفظ اللعبة على جهازك:\n\niPhone/iPad: اضغط مشاركة ← حفظ في الملفات\nAndroid: اضغط القائمة ← تنزيل الصفحة\nكمبيوتر: Ctrl+S أو Cmd+S');
+  }
+}
+
+/* ============================================================
+   START
+   ============================================================ */
+restart();
+</script>
+</body>
+</html>
